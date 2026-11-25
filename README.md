@@ -25,6 +25,10 @@ bookwise/
 │       ├── src/
 │       │   ├── auth/        Sign-up, sign-in, token rotation, JWT guard
 │       │   ├── users/       Users and GET /me
+│       │   ├── businesses/  Businesses (tenants), members, tenant guard, public profile
+│       │   ├── services/    Catalog of bookable services
+│       │   ├── staff/       Staff members, weekly working hours, time off
+│       │   ├── common/      Shared helpers (time, slugs, Prisma errors)
 │       │   ├── config/      Environment validation (Zod)
 │       │   ├── health/      GET /health (liveness + database check)
 │       │   └── prisma/      Prisma client as a Nest provider
@@ -99,7 +103,23 @@ Run from the repository root:
 | POST   | `/auth/logout`   | Public | Revoke the session of a refresh token         |
 | GET    | `/me`            | Bearer | The signed-in user                            |
 
-Every endpoint requires `Authorization: Bearer <access token>` unless it is marked public. Request bodies are validated with Zod; invalid input returns `400` with one message per field.
+**Businesses** (`/businesses/:businessId/...` requires membership; writes require the `OWNER` role)
+
+| Method              | Path                                                           | Description                                   |
+| ------------------- | -------------------------------------------------------------- | --------------------------------------------- |
+| POST / GET          | `/businesses`                                                  | Create a business (you become owner) / yours  |
+| GET / PATCH         | `/businesses/:businessId`                                      | Read / edit name, slug, time zone             |
+| GET / POST          | `/businesses/:businessId/members`                              | List / add an existing user by email          |
+| PATCH / DELETE      | `/businesses/:businessId/members/:userId`                      | Change role / remove (always keeps one owner) |
+| GET / POST          | `/businesses/:businessId/services`                             | List / create services                        |
+| PATCH / DELETE      | `/businesses/:businessId/services/:serviceId`                  | Edit / archive a service                      |
+| GET / POST          | `/businesses/:businessId/staff`                                | List / create staff members                   |
+| PATCH / DELETE      | `/businesses/:businessId/staff/:staffId`                       | Edit / deactivate a staff member              |
+| GET / PUT           | `/businesses/:businessId/staff/:staffId/working-hours`         | Read / replace the weekly schedule            |
+| GET / POST / DELETE | `/businesses/:businessId/staff/:staffId/time-off[/:timeOffId]` | Time off (vacations, appointments)            |
+| GET                 | `/public/businesses/:slug`                                     | Public profile for the booking page           |
+
+Every endpoint requires `Authorization: Bearer <access token>` unless it is marked public. Request bodies are validated with Zod; invalid input returns `400` with one message per field. The full reference, with request and response schemas, is at `/docs`.
 
 ## Design decisions
 
@@ -114,6 +134,21 @@ Built from small pieces (`@nestjs/jwt`, argon2) instead of an all-in-one library
 - **Passwords:** hashed with **argon2id**. Sign-in returns the same error for an unknown email and a wrong password, and verifies against a dummy hash when the email doesn't exist, so response times don't reveal which emails are registered.
 - **Rate limiting:** 10 requests per minute per IP on the auth endpoints (`@nestjs/throttler`).
 
+### Multi-tenancy
+
+Every business is a tenant, and every catalog record belongs to one business.
+
+- **Two layers of isolation:** a guard checks that the user is a member of the business in the URL (and has the required role), and every query is also scoped by `businessId`. Being an owner of business B doesn't give access to a service of business A through B's URLs.
+- **404, not 403, for outsiders:** a non-member gets the same response as for a business that doesn't exist, so business ids can't be probed. Members without the right role get `403`.
+- **Always one owner:** demoting or removing an owner first counts the remaining owners. That check runs inside a transaction that locks the business row (`SELECT ... FOR UPDATE`): without the lock, two owners removing each other at the same time both saw "2 owners" and left the business with none (reproduced in 29 of 30 attempts before the fix). An e2e test covers it.
+- **Archive, don't delete:** services and staff are deactivated instead of deleted, because bookings will reference them.
+
+### Data integrity
+
+- **Database CHECK constraints** back the API validation (durations, prices, weekdays, intervals, slug format), so invalid rows can't be written even by a bug or a manual query.
+- **Money in cents** (integers), never floating point.
+- **Working hours in local time:** stored as minutes since midnight in the business's time zone (09:30 → 570) and exchanged as `"HH:mm"`. Several intervals per day are allowed (split shifts); overlapping intervals are rejected.
+
 ### Dates
 
 Every timestamp is stored as `timestamptz` (UTC). Time zones matter in a booking app: they will drive the availability engine in stage 3.
@@ -122,7 +157,7 @@ Every timestamp is stored as `timestamptz` (UTC). Time zones matter in a booking
 
 - [x] **Stage 0:** monorepo, Docker services, NestJS API with health check, Prisma, CI
 - [x] **Stage 1:** users and authentication (JWT access + rotating refresh tokens)
-- [ ] **Stage 2:** businesses (multi-tenant), services, staff and working hours
+- [x] **Stage 2:** businesses (multi-tenant), services, staff and working hours
 - [ ] **Stage 3:** availability engine with time zones
 - [ ] **Stage 4:** bookings without double booking (Postgres exclusion constraint)
 - [ ] **Stage 5:** email reminders with BullMQ
