@@ -1,0 +1,11 @@
+// Bookwise database schema.
+// Models are added stage by stage; run `npm run prisma:migrate` after each change.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}

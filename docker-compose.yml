@@ -1,0 +1,43 @@
+# Local services for development and tests.
+# Start them with `npm run db:up` (or `docker compose up -d`).
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: bookwise-postgres
+    environment:
+      POSTGRES_USER: bookwise
+      POSTGRES_PASSWORD: bookwise
+      POSTGRES_DB: bookwise
+    ports:
+      - '127.0.0.1:5434:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      # Creates the separate database used by the e2e tests.
+      - ./docker/postgres-init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U bookwise -d bookwise']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: bookwise-redis
+    ports:
+      - '127.0.0.1:6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mailpit:
+    # Catches every email sent locally. Inbox at http://localhost:8025
+    image: axllent/mailpit:latest
+    container_name: bookwise-mailpit
+    ports:
+      - '127.0.0.1:1025:1025'
+      - '127.0.0.1:8025:8025'
+
+volumes:
+  postgres-data:
