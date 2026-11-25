@@ -18,7 +18,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:up": "docker compose up -d",
-    "db:down": "docker compose down"
+    "db:down": "docker compose down",
+    "dev:web": "npm run dev -w apps/web"
   },
   "devDependencies": {
     "prettier": "^3.4.2"
