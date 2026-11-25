@@ -20,6 +20,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { z } from 'zod';
+import { booleanQuery } from '../common/query.js';
 import {
   BusinessAccessGuard,
   BusinessRoles,
@@ -37,10 +38,6 @@ import {
 import { StaffService } from './staff.service.js';
 
 const id = z.uuid();
-const includeInactiveQuery = z
-  .enum(['true', 'false'])
-  .default('false')
-  .transform((v) => v === 'true');
 
 @ApiTags('staff')
 @ApiBearerAuth()
@@ -59,10 +56,10 @@ export class StaffController {
   @Get()
   list(
     @Param('businessId') businessId: string,
-    @Query('includeInactive', { schema: includeInactiveQuery })
-    includeInactive: boolean,
+    @Query({ schema: z.strictObject({ includeInactive: booleanQuery }) })
+    query: { includeInactive: boolean },
   ) {
-    return this.staff.list(businessId, includeInactive);
+    return this.staff.list(businessId, query.includeInactive);
   }
 
   @Post()

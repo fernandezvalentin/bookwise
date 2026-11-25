@@ -29,6 +29,7 @@ bookwise/
 │       │   ├── services/    Catalog of bookable services
 │       │   ├── staff/       Staff members, weekly working hours, time off
 │       │   ├── availability/ Availability engine (pure function) and public endpoint
+│       │   ├── bookings/    Bookings: create, cancel, reschedule, agenda
 │       │   ├── common/      Shared helpers (time, slugs, Prisma errors)
 │       │   ├── config/      Environment validation (Zod)
 │       │   ├── health/      GET /health (liveness + database check)
@@ -121,6 +122,17 @@ Run from the repository root:
 | GET                 | `/public/businesses/:slug`                                     | Public profile for the booking page           |
 | GET                 | `/public/businesses/:slug/availability`                        | Free slots for a service between two dates    |
 
+**Bookings** (visible to their customer and to members of the business)
+
+| Method | Path                                | Description                                         |
+| ------ | ----------------------------------- | --------------------------------------------------- |
+| POST   | `/bookings`                         | Book a slot (optionally with a chosen staff member) |
+| GET    | `/me/bookings?scope=upcoming\|past` | The signed-in user's bookings                       |
+| GET    | `/bookings/:bookingId`              | One booking                                         |
+| POST   | `/bookings/:bookingId/cancel`       | Cancel a future booking (frees the slot)            |
+| POST   | `/bookings/:bookingId/reschedule`   | Move to another time or staff member, atomically    |
+| GET    | `/businesses/:businessId/bookings`  | The business agenda between two local dates         |
+
 Every endpoint requires `Authorization: Bearer <access token>` unless it is marked public. Request bodies are validated with Zod; invalid input returns `400` with one message per field. The full reference, with request and response schemas, is at `/docs`.
 
 ## Design decisions
@@ -161,6 +173,23 @@ Every business is a tenant, and every catalog record belongs to one business.
 - **Any staff member:** each slot lists every staff member free at that time, so the customer can pick one or let the business assign anyone.
 - **Bounded queries:** at most 31 days per request, and busy periods are loaded only for that window.
 
+### Bookings: no double booking
+
+The hardest guarantee of the system: **two confirmed bookings of the same staff member never overlap**, even when requests race for the same slot.
+
+- **Enforced by Postgres, not only by the API:** an exclusion constraint rejects overlapping ranges at insert/update time:
+  ```sql
+  EXCLUDE USING gist (staff_id WITH =, tstzrange(starts_at, blocked_until, '[)') WITH &&)
+  WHERE (status = 'CONFIRMED')
+  ```
+  Checking availability first and then inserting is not enough: concurrent requests all pass the check before any of them writes. With the constraint, the database lets exactly one in and the others fail with `23P01`, which the API turns into `409`. The ranges include the service buffer and are half-open (`[)`), so back-to-back bookings fit and cancelled bookings don't block.
+- **Proven by a test:** 10 simultaneous booking attempts for the same slot end in exactly 1 booking and 9 `409`s. With the constraint temporarily dropped, the same test produced **10 bookings for one slot**.
+- **Deadlocks are retried:** concurrent inserts competing for the same constraint can deadlock each other (`40P01`); Postgres aborts one of them. The insert is retried a few times with a short random pause, and then answers `409`. It only shows up under real concurrency: before adding the retry, 8 rounds of 10 parallel requests produced 18 deadlocks.
+- **The availability engine is the first filter:** a booking must match a slot it offers (working hours, time off, other bookings, future only, 15-minute alignment), so the constraint is the last line of defense, not the only one.
+- **"Any staff member":** when the customer doesn't choose, the first free staff member is booked; if someone takes that person a moment earlier, the next free one is tried.
+- **Atomic reschedule:** a single `UPDATE` moves the booking; if the new time is taken, nothing changes. The booking is excluded from its own availability check, so it can move into a time that overlaps its current one.
+- **Price snapshot:** a booking stores the service's name, duration and price at booking time, so later catalog changes don't rewrite history.
+
 ### Dates
 
 Every timestamp is stored as `timestamptz` (UTC); local times only exist at the edges (working hours in, labels out).
@@ -171,7 +200,7 @@ Every timestamp is stored as `timestamptz` (UTC); local times only exist at the 
 - [x] **Stage 1:** users and authentication (JWT access + rotating refresh tokens)
 - [x] **Stage 2:** businesses (multi-tenant), services, staff and working hours
 - [x] **Stage 3:** availability engine with time zones
-- [ ] **Stage 4:** bookings without double booking (Postgres exclusion constraint)
+- [x] **Stage 4:** bookings without double booking (Postgres exclusion constraint)
 - [ ] **Stage 5:** email reminders with BullMQ
 - [ ] **Stage 6:** web: booking flow
 - [ ] **Stage 7:** web: business dashboard

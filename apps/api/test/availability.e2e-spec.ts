@@ -103,7 +103,9 @@ describe('GET /public/businesses/:slug/availability', () => {
     const at10 = all.body.slots.find(
       (s: { localTime: string }) => s.localTime === '10:00',
     );
-    expect(at10.staffIds.sort()).toEqual([martinId, luciaId].sort());
+    expect(
+      [...at10.staffIds].sort((a: string, b: string) => a.localeCompare(b)),
+    ).toEqual([martinId, luciaId].sort((a, b) => a.localeCompare(b)));
 
     const onlyLucia = await availability({
       serviceId,

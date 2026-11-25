@@ -26,5 +26,8 @@ export default defineConfig({
     globalSetup: ['./test/global-setup.ts'],
     // Test files share one database, so they run one at a time.
     fileParallelism: false,
+    // Real database and argon2 hashing: slower than unit tests, especially on a cold start.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
   },
 });

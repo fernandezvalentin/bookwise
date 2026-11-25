@@ -19,6 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { z } from 'zod';
+import { booleanQuery } from '../common/query.js';
 import {
   BusinessAccessGuard,
   BusinessRoles,
@@ -30,11 +31,6 @@ import {
   type UpdateServiceDto,
 } from './services.schemas.js';
 import { ServicesService } from './services.service.js';
-
-const includeArchivedQuery = z
-  .enum(['true', 'false'])
-  .default('false')
-  .transform((v) => v === 'true');
 
 @ApiTags('services')
 @ApiBearerAuth()
@@ -49,10 +45,10 @@ export class ServicesController {
   @Get()
   list(
     @Param('businessId') businessId: string,
-    @Query('includeArchived', { schema: includeArchivedQuery })
-    includeArchived: boolean,
+    @Query({ schema: z.strictObject({ includeArchived: booleanQuery }) })
+    query: { includeArchived: boolean },
   ) {
-    return this.services.list(businessId, includeArchived);
+    return this.services.list(businessId, query.includeArchived);
   }
 
   @Post()
