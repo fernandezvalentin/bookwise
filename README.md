@@ -28,6 +28,7 @@ bookwise/
 │       │   ├── businesses/  Businesses (tenants), members, tenant guard, public profile
 │       │   ├── services/    Catalog of bookable services
 │       │   ├── staff/       Staff members, weekly working hours, time off
+│       │   ├── availability/ Availability engine (pure function) and public endpoint
 │       │   ├── common/      Shared helpers (time, slugs, Prisma errors)
 │       │   ├── config/      Environment validation (Zod)
 │       │   ├── health/      GET /health (liveness + database check)
@@ -118,6 +119,7 @@ Run from the repository root:
 | GET / PUT           | `/businesses/:businessId/staff/:staffId/working-hours`         | Read / replace the weekly schedule            |
 | GET / POST / DELETE | `/businesses/:businessId/staff/:staffId/time-off[/:timeOffId]` | Time off (vacations, appointments)            |
 | GET                 | `/public/businesses/:slug`                                     | Public profile for the booking page           |
+| GET                 | `/public/businesses/:slug/availability`                        | Free slots for a service between two dates    |
 
 Every endpoint requires `Authorization: Bearer <access token>` unless it is marked public. Request bodies are validated with Zod; invalid input returns `400` with one message per field. The full reference, with request and response schemas, is at `/docs`.
 
@@ -149,16 +151,26 @@ Every business is a tenant, and every catalog record belongs to one business.
 - **Money in cents** (integers), never floating point.
 - **Working hours in local time:** stored as minutes since midnight in the business's time zone (09:30 → 570) and exchanged as `"HH:mm"`. Several intervals per day are allowed (split shifts); overlapping intervals are rejected.
 
+### Availability engine
+
+`GET /public/businesses/:slug/availability?serviceId=...&from=2026-12-07&to=2026-12-13` returns the free slots for a service. The calculation lives in a **pure function** (`computeAvailableSlots`, no database access), so it is covered by fast unit tests; the service around it only loads data and calls it.
+
+- **Two kinds of time:** working hours are _wall-clock_ times in the business's time zone ("Mondays 09:00-13:00"), because that's how businesses think. Time off, bookings and slots are _instants_ in UTC, because that's what can be compared safely. Wall-clock times are turned into instants day by day, in the business's zone (with Luxon).
+- **Daylight saving time:** "09:00" stays 09:00 local time all year, while its UTC instant moves when clocks change. On the spring-forward day the skipped hour offers no slots; on the fall-back day the repeated hour is offered twice, because it really happens twice. Both cases are unit tested with `America/New_York`.
+- **Rules:** candidate starts every 15 minutes; the appointment must end by closing time (the buffer may spill over); a slot is dropped if the appointment plus its buffer overlaps time off or another booking (periods are half-open, so back-to-back appointments fit); only future slots are offered.
+- **Any staff member:** each slot lists every staff member free at that time, so the customer can pick one or let the business assign anyone.
+- **Bounded queries:** at most 31 days per request, and busy periods are loaded only for that window.
+
 ### Dates
 
-Every timestamp is stored as `timestamptz` (UTC). Time zones matter in a booking app: they will drive the availability engine in stage 3.
+Every timestamp is stored as `timestamptz` (UTC); local times only exist at the edges (working hours in, labels out).
 
 ## Roadmap
 
 - [x] **Stage 0:** monorepo, Docker services, NestJS API with health check, Prisma, CI
 - [x] **Stage 1:** users and authentication (JWT access + rotating refresh tokens)
 - [x] **Stage 2:** businesses (multi-tenant), services, staff and working hours
-- [ ] **Stage 3:** availability engine with time zones
+- [x] **Stage 3:** availability engine with time zones
 - [ ] **Stage 4:** bookings without double booking (Postgres exclusion constraint)
 - [ ] **Stage 5:** email reminders with BullMQ
 - [ ] **Stage 6:** web: booking flow
