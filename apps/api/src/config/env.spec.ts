@@ -2,6 +2,7 @@ import { validateEnv } from './env.js';
 
 const validEnv = {
   DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
+  JWT_ACCESS_SECRET: 'x'.repeat(32),
 };
 
 describe('validateEnv', () => {
@@ -16,7 +17,9 @@ describe('validateEnv', () => {
   });
 
   it('fails when DATABASE_URL is missing', () => {
-    expect(() => validateEnv({})).toThrow(/DATABASE_URL/);
+    expect(() =>
+      validateEnv({ JWT_ACCESS_SECRET: validEnv.JWT_ACCESS_SECRET }),
+    ).toThrow(/DATABASE_URL/);
   });
 
   it('fails when DATABASE_URL is not a Postgres URL', () => {

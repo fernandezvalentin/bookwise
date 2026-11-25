@@ -11,6 +11,13 @@ export const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().int().positive().default(3001),
   DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
+
+  // Auth
+  JWT_ACCESS_SECRET: z.string().min(32, 'must be at least 32 characters'),
+  JWT_ACCESS_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
+  /** Max requests per minute, per IP, to the auth endpoints (brute-force protection). */
+  AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;
