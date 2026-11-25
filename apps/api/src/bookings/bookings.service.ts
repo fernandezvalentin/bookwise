@@ -12,6 +12,7 @@ import {
   retryOnDeadlock,
 } from '../common/prisma-errors.js';
 import { Prisma } from '../generated/prisma/client.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type {
   BusinessBookingsQuery,
@@ -34,6 +35,7 @@ export class BookingsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly availability: AvailabilityService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   /**
@@ -83,6 +85,7 @@ export class BookingsService {
             include: bookingInclude,
           }),
         );
+        await this.notifications.bookingConfirmed(booking);
         return toView(booking);
       } catch (error) {
         // Someone booked this staff member a moment ago: try the next one.
@@ -112,6 +115,7 @@ export class BookingsService {
       data: { status: 'CANCELLED', cancelledAt: now },
       include: bookingInclude,
     });
+    await this.notifications.bookingCancelled(updated);
     return toView(updated);
   }
 
@@ -158,10 +162,16 @@ export class BookingsService {
           this.prisma.booking.update({
             // Only if it is still confirmed (it may have been cancelled meanwhile).
             where: { id: booking.id, status: 'CONFIRMED' },
-            data: { staffId, ...timesFor(startsAt, service) },
+            // A new time deserves a new reminder.
+            data: {
+              staffId,
+              ...timesFor(startsAt, service),
+              reminderSentAt: null,
+            },
             include: bookingInclude,
           }),
         );
+        await this.notifications.bookingRescheduled(updated);
         return toView(updated);
       } catch (error) {
         if (isExclusionViolation(error, 'bookings_no_overlap')) continue;

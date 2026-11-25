@@ -190,25 +190,27 @@ enum BookingStatus {
 /// An appointment. Overlapping CONFIRMED bookings for the same staff member are
 /// rejected by an exclusion constraint in the database (see the migration).
 model Booking {
-  id           String        @id @default(uuid()) @db.Uuid
-  businessId   String        @map("business_id") @db.Uuid
-  serviceId    String        @map("service_id") @db.Uuid
-  staffId      String        @map("staff_id") @db.Uuid
-  customerId   String        @map("customer_id") @db.Uuid
-  startsAt     DateTime      @map("starts_at") @db.Timestamptz(3)
+  id             String        @id @default(uuid()) @db.Uuid
+  businessId     String        @map("business_id") @db.Uuid
+  serviceId      String        @map("service_id") @db.Uuid
+  staffId        String        @map("staff_id") @db.Uuid
+  customerId     String        @map("customer_id") @db.Uuid
+  startsAt       DateTime      @map("starts_at") @db.Timestamptz(3)
   /// End of the appointment itself.
-  endsAt       DateTime      @map("ends_at") @db.Timestamptz(3)
+  endsAt         DateTime      @map("ends_at") @db.Timestamptz(3)
   /// End of the appointment plus the service buffer: the staff member is busy until then.
-  blockedUntil DateTime      @map("blocked_until") @db.Timestamptz(3)
-  status       BookingStatus @default(CONFIRMED)
+  blockedUntil   DateTime      @map("blocked_until") @db.Timestamptz(3)
+  status         BookingStatus @default(CONFIRMED)
   /// Snapshot of the service when booked, so history doesn't change with the catalog.
-  serviceName  String        @map("service_name")
-  durationMin  Int           @map("duration_min")
-  priceCents   Int           @map("price_cents")
-  notes        String?
-  cancelledAt  DateTime?     @map("cancelled_at") @db.Timestamptz(3)
-  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
+  serviceName    String        @map("service_name")
+  durationMin    Int           @map("duration_min")
+  priceCents     Int           @map("price_cents")
+  notes          String?
+  cancelledAt    DateTime?     @map("cancelled_at") @db.Timestamptz(3)
+  /// When the reminder email was sent (null = not yet). Prevents duplicate reminders.
+  reminderSentAt DateTime?     @map("reminder_sent_at") @db.Timestamptz(3)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
   service  Service     @relation(fields: [serviceId], references: [id], onDelete: Restrict)
@@ -218,5 +220,7 @@ model Booking {
   @@index([businessId, startsAt])
   @@index([staffId, startsAt])
   @@index([customerId, startsAt])
+  /// Used by the reminder sweep: confirmed bookings without a reminder yet.
+  @@index([status, reminderSentAt, startsAt])
   @@map("bookings")
 }

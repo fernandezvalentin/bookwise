@@ -26,6 +26,7 @@
   "allowScripts": {
     "@prisma/engines@7.10.1": true,
     "prisma@7.10.1": true,
-    "@scarf/scarf": false
+    "@scarf/scarf": false,
+    "msgpackr-extract": false
   }
 }

@@ -10,7 +10,14 @@ const testEnv = {
 };
 
 function pickDefined(env: NodeJS.ProcessEnv) {
-  const keys = ['NODE_ENV', 'PORT', 'DATABASE_URL', 'REDIS_URL'] as const;
+  const keys = [
+    'NODE_ENV',
+    'PORT',
+    'DATABASE_URL',
+    'REDIS_URL',
+    'SMTP_URL',
+    'MAILPIT_API_URL',
+  ] as const;
   return Object.fromEntries(
     keys.filter((k) => env[k]).map((k) => [k, env[k] as string]),
   );

@@ -30,6 +30,8 @@ bookwise/
 │       │   ├── staff/       Staff members, weekly working hours, time off
 │       │   ├── availability/ Availability engine (pure function) and public endpoint
 │       │   ├── bookings/    Bookings: create, cancel, reschedule, agenda
+│       │   ├── notifications/ Email queue: worker, reminders, sweep
+│       │   ├── mail/        SMTP email sending (nodemailer)
 │       │   ├── common/      Shared helpers (time, slugs, Prisma errors)
 │       │   ├── config/      Environment validation (Zod)
 │       │   ├── health/      GET /health (liveness + database check)
@@ -76,7 +78,7 @@ npm run prisma:migrate -w apps/api -- --name describe_the_change
 | -------- | --------------------- | ------------------------------------------------------------------ |
 | API      | http://localhost:3001 |                                                                    |
 | Postgres | `localhost:5434`      | user/password `bookwise`, databases `bookwise` and `bookwise_test` |
-| Redis    | `localhost:6379`      |                                                                    |
+| Redis    | `localhost:6379`      | Database 0 for development, 1 for the e2e tests                    |
 | Mailpit  | http://localhost:8025 | Inbox for every email sent locally                                 |
 
 ## Scripts
@@ -190,6 +192,18 @@ The hardest guarantee of the system: **two confirmed bookings of the same staff 
 - **Atomic reschedule:** a single `UPDATE` moves the booking; if the new time is taken, nothing changes. The booking is excluded from its own availability check, so it can move into a time that overlaps its current one.
 - **Price snapshot:** a booking stores the service's name, duration and price at booking time, so later catalog changes don't rewrite history.
 
+### Notifications: queue and email reminders
+
+Customers get an email when a booking is confirmed, rescheduled or cancelled, and a **reminder 24 hours before** (configurable with `REMINDER_HOURS_BEFORE`).
+
+- **Through a queue (BullMQ + Redis), not inside the request:** the booking answers immediately, and a worker sends the email. If the SMTP server is slow or down, the worker retries with exponential backoff (5 attempts: 2 s, 4 s, 8 s...). Enqueueing never fails the booking itself.
+- **Reminders are delayed jobs:** one job per booking, with a deterministic id (`reminder-<bookingId>`), delayed until 24 hours before the start. Cancelling removes it; rescheduling replaces it. Bookings made less than 24 hours ahead get no reminder (the confirmation is enough).
+- **At most once:** jobs can run more than once (retries, the sweep below), so the worker first _claims_ the booking with a conditional update (`status = CONFIRMED`, same start the reminder was scheduled for, `reminder_sent_at IS NULL`) and only then sends. A second run finds nothing to claim. If the email fails, the claim is released so a retry can send it. A stale reminder (booking cancelled or moved) is skipped the same way.
+- **Never lost:** if Redis was down when a booking was made, its reminder was never queued. A **sweep** runs every 10 minutes (a BullMQ job scheduler) and queues reminders for confirmed bookings inside the window that should have one and don't.
+- **Tested end to end:** the e2e tests send real emails through SMTP to Mailpit and read them back through its API, including a failed send (released claim, then a successful retry) and a lost reminder recovered by the sweep.
+
+Locally, every email lands in Mailpit at http://localhost:8025. The e2e tests use Redis database 1, so they never touch the development queues.
+
 ### Dates
 
 Every timestamp is stored as `timestamptz` (UTC); local times only exist at the edges (working hours in, labels out).
@@ -201,7 +215,7 @@ Every timestamp is stored as `timestamptz` (UTC); local times only exist at the 
 - [x] **Stage 2:** businesses (multi-tenant), services, staff and working hours
 - [x] **Stage 3:** availability engine with time zones
 - [x] **Stage 4:** bookings without double booking (Postgres exclusion constraint)
-- [ ] **Stage 5:** email reminders with BullMQ
+- [x] **Stage 5:** email reminders with BullMQ
 - [ ] **Stage 6:** web: booking flow
 - [ ] **Stage 7:** web: business dashboard
 - [ ] **Stage 8:** deployment and public demo

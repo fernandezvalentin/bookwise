@@ -3,6 +3,8 @@ import { validateEnv } from './env.js';
 const validEnv = {
   DATABASE_URL: 'postgresql://user:pass@localhost:5432/db',
   JWT_ACCESS_SECRET: 'x'.repeat(32),
+  REDIS_URL: 'redis://localhost:6379',
+  SMTP_URL: 'smtp://localhost:1025',
 };
 
 describe('validateEnv', () => {

@@ -18,6 +18,14 @@ export const envSchema = z.object({
   REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(30),
   /** Max requests per minute, per IP, to the auth endpoints (brute-force protection). */
   AUTH_RATE_LIMIT: z.coerce.number().int().positive().default(10),
+
+  // Queues and email
+  REDIS_URL: z.url({ protocol: /^rediss?$/ }),
+  /** SMTP server, e.g. smtp://localhost:1025 (Mailpit) or smtps://user:pass@host:465. */
+  SMTP_URL: z.url({ protocol: /^smtps?$/ }),
+  MAIL_FROM: z.string().min(3).default('Bookwise <no-reply@bookwise.local>'),
+  /** How long before an appointment the reminder email is sent. */
+  REMINDER_HOURS_BEFORE: z.coerce.number().int().min(1).max(168).default(24),
 });
 
 export type Env = z.infer<typeof envSchema>;

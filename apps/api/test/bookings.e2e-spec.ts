@@ -172,8 +172,9 @@ describe('Bookings', () => {
       );
       await book(customer, { startsAt: at('09:00') }).expect(409);
 
-      expect([first.body.staff.id, second.body.staff.id].sort()).toEqual(
-        [martinId, luciaId].sort(),
+      const byId = (a: string, b: string) => a.localeCompare(b);
+      expect([first.body.staff.id, second.body.staff.id].sort(byId)).toEqual(
+        [martinId, luciaId].sort(byId),
       );
     });
 
