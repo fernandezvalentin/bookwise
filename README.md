@@ -20,23 +20,33 @@
 ```
 bookwise/
 ├── apps/
-│   └── api/                 NestJS REST API
-│       ├── prisma/          Schema and migrations
-│       ├── src/
-│       │   ├── auth/        Sign-up, sign-in, token rotation, JWT guard
-│       │   ├── users/       Users and GET /me
-│       │   ├── businesses/  Businesses (tenants), members, tenant guard, public profile
-│       │   ├── services/    Catalog of bookable services
-│       │   ├── staff/       Staff members, weekly working hours, time off
-│       │   ├── availability/ Availability engine (pure function) and public endpoint
-│       │   ├── bookings/    Bookings: create, cancel, reschedule, agenda
-│       │   ├── notifications/ Email queue: worker, reminders, sweep
-│       │   ├── mail/        SMTP email sending (nodemailer)
-│       │   ├── common/      Shared helpers (time, slugs, Prisma errors)
-│       │   ├── config/      Environment validation (Zod)
-│       │   ├── health/      GET /health (liveness + database check)
-│       │   └── prisma/      Prisma client as a Nest provider
-│       └── test/            e2e tests
+│   ├── api/                 NestJS REST API
+│   │   ├── prisma/          Schema and migrations
+│   │   ├── src/
+│   │   │   ├── auth/        Sign-up, sign-in, token rotation, JWT guard
+│   │   │   ├── users/       Users and GET /me
+│   │   │   ├── businesses/  Businesses (tenants), members, tenant guard, public profile
+│   │   │   ├── services/    Catalog of bookable services
+│   │   │   ├── staff/       Staff members, weekly working hours, time off
+│   │   │   ├── availability/ Availability engine (pure function) and public endpoint
+│   │   │   ├── bookings/    Bookings: create, cancel, reschedule, agenda
+│   │   │   ├── notifications/ Email queue: worker, reminders, sweep
+│   │   │   ├── mail/        SMTP email sending (nodemailer)
+│   │   │   ├── common/      Shared helpers (time, slugs, Prisma errors)
+│   │   │   ├── config/      Environment validation (Zod)
+│   │   │   ├── health/      GET /health (liveness + database check)
+│   │   │   └── prisma/      Prisma client as a Nest provider
+│   │   └── test/            e2e tests
+│   └── web/                 Next.js app (talks to the API from the server only)
+│       └── src/
+│           ├── app/
+│           │   ├── b/[slug]/    Public booking page: service, staff, day, time
+│           │   ├── bookings/    Booking details, cancel and reschedule
+│           │   ├── me/          The signed-in customer's bookings
+│           │   ├── dashboard/   Business dashboard: agenda, services, staff & hours, settings
+│           │   └── (auth)/      Sign-in and sign-up
+│           ├── components/      Shared UI
+│           └── lib/             API client, cookie sessions, formatting, agenda helpers
 ├── docker/                  Docker init scripts
 ├── docker-compose.yml       Postgres, Redis and Mailpit for local development
 └── .github/workflows/       CI
@@ -58,9 +68,13 @@ cp apps/api/.env.example apps/api/.env
 
 # 4. Run the API in watch mode
 npm run dev
+
+# 5. In another terminal: create the web environment file and run the web app
+cp apps/web/.env.example apps/web/.env.local
+npm run dev:web
 ```
 
-The API runs at http://localhost:3001, with interactive docs (Swagger) at **http://localhost:3001/docs**. Check it with:
+The web app runs at **http://localhost:3000**. The API runs at http://localhost:3001, with interactive docs (Swagger) at **http://localhost:3001/docs**. Check it with:
 
 ```bash
 curl http://localhost:3001/health
@@ -76,6 +90,7 @@ npm run prisma:migrate -w apps/api -- --name describe_the_change
 
 | Service  | Address               | Notes                                                              |
 | -------- | --------------------- | ------------------------------------------------------------------ |
+| Web      | http://localhost:3000 |                                                                    |
 | API      | http://localhost:3001 |                                                                    |
 | Postgres | `localhost:5434`      | user/password `bookwise`, databases `bookwise` and `bookwise_test` |
 | Redis    | `localhost:6379`      | Database 0 for development, 1 for the e2e tests                    |
@@ -88,6 +103,7 @@ Run from the repository root:
 | Command                     | What it does                                   |
 | --------------------------- | ---------------------------------------------- |
 | `npm run dev`               | API in watch mode                              |
+| `npm run dev:web`           | Web app in development mode                    |
 | `npm run build`             | Production build                               |
 | `npm run lint`              | oxlint (type-aware)                            |
 | `npm run typecheck`         | TypeScript, no emit                            |
@@ -216,7 +232,7 @@ Every timestamp is stored as `timestamptz` (UTC); local times only exist at the 
 - [x] **Stage 3:** availability engine with time zones
 - [x] **Stage 4:** bookings without double booking (Postgres exclusion constraint)
 - [x] **Stage 5:** email reminders with BullMQ
-- [ ] **Stage 6:** web: booking flow
-- [ ] **Stage 7:** web: business dashboard
+- [x] **Stage 6:** web: booking flow
+- [x] **Stage 7:** web: business dashboard
 - [ ] **Stage 8:** deployment and public demo
 - [ ] **Stage 9:** AI booking assistant

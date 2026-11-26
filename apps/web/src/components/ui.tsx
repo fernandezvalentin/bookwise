@@ -3,13 +3,18 @@ import type { ReactNode } from 'react';
 
 export function Container({
   children,
+  wide = false,
   className = '',
 }: {
   children: ReactNode;
+  /** Wider layout for the dashboard (agenda, tables). */
+  wide?: boolean;
   className?: string;
 }) {
   return (
-    <div className={`mx-auto w-full max-w-3xl px-4 ${className}`}>
+    <div
+      className={`mx-auto w-full px-4 ${wide ? 'max-w-6xl' : 'max-w-3xl'} ${className}`}
+    >
       {children}
     </div>
   );

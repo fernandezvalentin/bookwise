@@ -7,13 +7,19 @@ export async function Header() {
 
   return (
     <header className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-3xl items-center gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
         <Link href="/" className="text-lg font-semibold tracking-tight">
           <span className="text-brand">Book</span>wise
         </Link>
         <nav className="ml-auto flex items-center gap-1 text-sm">
           {user ? (
             <>
+              <Link
+                href="/dashboard"
+                className="rounded-lg px-3 py-2 font-medium hover:bg-zinc-100"
+              >
+                Dashboard
+              </Link>
               <Link
                 href="/me/bookings"
                 className="rounded-lg px-3 py-2 font-medium hover:bg-zinc-100"

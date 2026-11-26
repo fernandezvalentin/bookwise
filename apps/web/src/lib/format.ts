@@ -1,8 +1,12 @@
 import { DateTime } from 'luxon';
 
-/** Prices are stored in cents: 1500000 -> "$15,000". */
+/** Prices are stored in cents: 1500000 -> "$15,000", 1250050 -> "$12,500.50". */
 export function formatPrice(cents: number): string {
-  return `$${(cents / 100).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+  const digits = cents % 100 === 0 ? 0 : 2;
+  return `$${(cents / 100).toLocaleString('en-US', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  })}`;
 }
 
 /** 30 -> "30 min", 90 -> "1 h 30 min". */

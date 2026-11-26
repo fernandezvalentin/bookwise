@@ -74,3 +74,50 @@ export interface Booking {
   cancelledAt: string | null;
   createdAt: string;
 }
+
+// ---------------------------------------------------------------------
+//  Business dashboard (private routes)
+// ---------------------------------------------------------------------
+
+export type MemberRole = 'OWNER' | 'STAFF';
+
+/** A business the signed-in user belongs to, with their role in it. */
+export interface MyBusiness {
+  id: string;
+  name: string;
+  slug: string;
+  timezone: string;
+  createdAt: string;
+  role: MemberRole;
+}
+
+export interface Service {
+  id: string;
+  name: string;
+  description: string | null;
+  durationMin: number;
+  bufferMin: number;
+  priceCents: number;
+  active: boolean;
+}
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  active: boolean;
+  serviceIds: string[];
+}
+
+/** Weekly working hours in the business's local time. Weekday: 1 = Monday. */
+export interface WorkingInterval {
+  weekday: number;
+  start: string;
+  end: string;
+}
+
+export interface TimeOff {
+  id: string;
+  startsAt: string;
+  endsAt: string;
+  reason: string | null;
+}

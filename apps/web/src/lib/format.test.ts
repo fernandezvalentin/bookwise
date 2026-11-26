@@ -11,7 +11,9 @@ import {
 describe('format helpers', () => {
   it('formats prices stored in cents', () => {
     expect(formatPrice(1_500_000)).toBe('$15,000');
-    expect(formatPrice(1_050)).toBe('$10.5');
+    expect(formatPrice(1_050)).toBe('$10.50');
+    expect(formatPrice(1_250_050)).toBe('$12,500.50');
+    expect(formatPrice(99)).toBe('$0.99');
   });
 
   it.each([

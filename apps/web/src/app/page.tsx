@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Container } from '@/components/ui';
+import { tryDemo } from './(auth)/actions';
 
 const FEATURES = [
   [
@@ -22,6 +23,9 @@ const FEATURES = [
 
 export default function HomePage() {
   const demoSlug = process.env.DEMO_BUSINESS_SLUG;
+  const demoDashboard = Boolean(
+    process.env.DEMO_OWNER_EMAIL && process.env.DEMO_OWNER_PASSWORD,
+  );
 
   return (
     <Container>
@@ -34,11 +38,20 @@ export default function HomePage() {
           member and a free time, and get an email reminder before their
           appointment.
         </p>
-        {demoSlug && (
-          <Link href={`/b/${demoSlug}`} className="btn-primary mt-6">
-            Try booking at the demo business
-          </Link>
-        )}
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          {demoSlug && (
+            <Link href={`/b/${demoSlug}`} className="btn-primary">
+              Try booking at the demo business
+            </Link>
+          )}
+          {demoDashboard && (
+            <form action={tryDemo}>
+              <button className="btn-secondary">
+                Try the business dashboard
+              </button>
+            </form>
+          )}
+        </div>
       </section>
 
       <ul className="grid gap-3 sm:grid-cols-2">

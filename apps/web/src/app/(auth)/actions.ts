@@ -79,6 +79,38 @@ export async function signOut() {
   redirect('/');
 }
 
+/**
+ * Signs in as the owner of the demo business, so visitors can try the
+ * dashboard without creating an account. The credentials stay on the server;
+ * the demo data is reset regularly (stage 8), so edits there are harmless.
+ */
+export async function tryDemo() {
+  const email = process.env.DEMO_OWNER_EMAIL;
+  const password = process.env.DEMO_OWNER_PASSWORD;
+  if (!email || !password) redirect('/');
+
+  // Replacing another session: revoke it in the API instead of orphaning it.
+  const previous = await getRefreshToken();
+  if (previous) {
+    await api('/auth/logout', {
+      method: 'POST',
+      body: { refreshToken: previous },
+    }).catch(() => undefined);
+  }
+
+  try {
+    await saveSession(
+      await api<TokenPair>('/auth/login', {
+        method: 'POST',
+        body: { email, password },
+      }),
+    );
+  } catch {
+    redirect('/login?next=/dashboard');
+  }
+  redirect('/dashboard');
+}
+
 function authErrorMessage(error: unknown): string {
   if (!(error instanceof ApiError))
     return 'Something went wrong. Please try again.';
