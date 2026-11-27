@@ -12,7 +12,7 @@ export function ServiceCheckboxes({
     <fieldset>
       <legend className="label">Services they provide</legend>
       {services.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-stone-500">
           Add services first, then assign them here.
         </p>
       ) : (

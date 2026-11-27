@@ -17,11 +17,11 @@ export default async function BusinessDashboardLayout({
         <div className="min-w-0 flex-1">
           <Link
             href="/dashboard"
-            className="text-sm text-zinc-500 hover:text-zinc-800"
+            className="text-sm text-stone-500 hover:text-stone-800"
           >
             ← Your businesses
           </Link>
-          <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight">
+          <h1 className="mt-1 truncate font-display text-3xl font-medium tracking-tight sm:text-4xl">
             {business.name}
           </h1>
         </div>
@@ -41,7 +41,7 @@ export default async function BusinessDashboardLayout({
         ]}
       />
       {business.role === 'STAFF' && (
-        <p className="mb-4 text-sm text-zinc-500">
+        <p className="mb-4 text-sm text-stone-500">
           You are a staff member here: you can see everything, but only owners
           can make changes.
         </p>

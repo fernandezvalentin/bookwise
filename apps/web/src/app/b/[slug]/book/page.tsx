@@ -99,7 +99,7 @@ export default async function BookPage({
       <section aria-labelledby="staff-heading" className="mb-6">
         <h2
           id="staff-heading"
-          className="mb-2 text-sm font-medium text-zinc-700"
+          className="mb-2 text-sm font-medium text-stone-700"
         >
           With
         </h2>
@@ -117,9 +117,12 @@ export default async function BookPage({
       </section>
 
       <section aria-labelledby="day-heading" className="mb-6">
-        <h2 id="day-heading" className="mb-2 text-sm font-medium text-zinc-700">
+        <h2
+          id="day-heading"
+          className="mb-2 text-sm font-medium text-stone-700"
+        >
           Day{' '}
-          <span className="font-normal text-zinc-500">
+          <span className="font-normal text-stone-500">
             ({timezoneLabel(business.timezone)})
           </span>
         </h2>
@@ -140,12 +143,12 @@ export default async function BookPage({
       <section aria-labelledby="time-heading">
         <h2
           id="time-heading"
-          className="mb-2 text-sm font-medium text-zinc-700"
+          className="mb-2 text-sm font-medium text-stone-700"
         >
           Time
         </h2>
         {availability.slots.length === 0 ? (
-          <p className="card p-6 text-sm text-zinc-600">
+          <p className="card p-6 text-sm text-stone-600">
             No free times on {formatDay(date)}. Try another day
             {staff !== 'any' && !rescheduling ? ' or anyone available' : ''}.
           </p>
@@ -158,7 +161,7 @@ export default async function BookPage({
                   ...step,
                   start: slot.start,
                 })}
-                className="btn-secondary tabular-nums"
+                className="btn-secondary tabular-nums hover:border-brand hover:bg-brand-soft hover:text-brand-dark"
               >
                 {slot.localTime}
               </Link>
@@ -188,8 +191,8 @@ function ChoiceLink({
       aria-current={selected ? 'true' : undefined}
       className={`rounded-full border px-3 py-1.5 text-sm transition ${
         selected
-          ? 'border-brand bg-brand-soft font-medium text-brand'
-          : 'border-zinc-300 bg-white text-zinc-700 hover:bg-zinc-100'
+          ? 'border-brand bg-brand font-medium text-white shadow-sm shadow-brand/20'
+          : 'border-stone-200 bg-white text-stone-700 hover:border-stone-400'
       } ${className}`}
     >
       {children}

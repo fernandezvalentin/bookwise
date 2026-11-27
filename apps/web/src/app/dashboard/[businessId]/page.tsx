@@ -98,16 +98,16 @@ export default async function AgendaPage({
             ›
           </Link>
         </div>
-        <h2 className="px-2 text-lg font-semibold">
+        <h2 className="px-2 font-display text-xl font-medium">
           {view === 'day' ? formatLongDay(date) : formatRange(from, to)}
         </h2>
-        <div className="ml-auto flex rounded-lg border border-zinc-300 bg-white p-0.5 text-sm">
+        <div className="ml-auto flex rounded-full border border-stone-200 bg-white p-1 text-sm">
           {(['day', 'week'] as const).map((v) => (
             <Link
               key={v}
               href={href({ view: v })}
               aria-current={v === view ? 'page' : undefined}
-              className="rounded-md px-3 py-1.5 font-medium text-zinc-600 capitalize aria-[current=page]:bg-zinc-900 aria-[current=page]:text-white"
+              className="rounded-full px-4 py-1.5 font-medium text-stone-600 capitalize aria-[current=page]:bg-brand aria-[current=page]:text-white"
             >
               {v}
             </Link>
@@ -124,7 +124,7 @@ export default async function AgendaPage({
               aria-current={
                 (s.id ?? undefined) === staffId ? 'page' : undefined
               }
-              className="rounded-full border border-zinc-200 bg-white px-3 py-1 text-zinc-600 hover:border-zinc-300 aria-[current=page]:border-brand aria-[current=page]:bg-brand-soft aria-[current=page]:text-brand-dark"
+              className="rounded-full border border-stone-200 bg-white px-3 py-1 text-stone-600 hover:border-stone-300 aria-[current=page]:border-brand aria-[current=page]:bg-brand aria-[current=page]:text-white"
             >
               {s.name}
             </Link>
@@ -132,7 +132,7 @@ export default async function AgendaPage({
         </div>
       )}
 
-      <p className="mb-4 text-sm text-zinc-500">
+      <p className="mb-4 text-sm text-stone-500">
         {confirmed.length} {confirmed.length === 1 ? 'booking' : 'bookings'}
         {confirmed.length > 0 && <> · {formatPrice(revenue)} expected</>}
         {' · '}
@@ -162,13 +162,13 @@ function DayView({
 }) {
   if (bookings.length === 0)
     return (
-      <p className="card p-8 text-center text-sm text-zinc-500">
+      <p className="card p-8 text-center text-sm text-stone-500">
         No bookings this day.
       </p>
     );
 
   return (
-    <ul className="card divide-y divide-zinc-100">
+    <ul className="card divide-y divide-stone-100">
       {bookings.map((b) => {
         const cancelled = b.status === 'CANCELLED';
         const canCancel = !cancelled && hasNotStarted(b.startsAt);
@@ -181,30 +181,30 @@ function DayView({
               <p className="font-medium">
                 {b.localTime}–{localParts(b.endsAt, timezone).localTime}
               </p>
-              <p className="text-zinc-500">{b.staff.name}</p>
+              <p className="text-stone-500">{b.staff.name}</p>
             </div>
             <div className="min-w-0 flex-1 text-sm">
               <p className={`font-medium ${cancelled ? 'line-through' : ''}`}>
                 {b.service.name}{' '}
-                <span className="font-normal text-zinc-500">
+                <span className="font-normal text-stone-500">
                   · {formatPrice(b.service.priceCents)}
                 </span>
               </p>
-              <p className="truncate text-zinc-600">
+              <p className="truncate text-stone-600">
                 {b.customer.name}{' '}
                 <a
                   href={`mailto:${b.customer.email}`}
-                  className="text-zinc-500 hover:underline"
+                  className="text-stone-500 hover:underline"
                 >
                   {b.customer.email}
                 </a>
               </p>
               {b.notes && (
-                <p className="mt-1 text-zinc-500 italic">“{b.notes}”</p>
+                <p className="mt-1 text-stone-500 italic">“{b.notes}”</p>
               )}
             </div>
             {cancelled ? (
-              <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+              <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
                 Cancelled
               </span>
             ) : (
@@ -249,12 +249,12 @@ function WeekView({
           >
             <Link
               href={dayHref(day)}
-              className="mb-2 block rounded px-1 text-sm font-medium hover:bg-zinc-100"
+              className="mb-2 block rounded px-1 text-sm font-medium hover:bg-stone-100"
             >
               {formatDay(day)}
             </Link>
             {dayBookings.length === 0 ? (
-              <p className="px-1 text-xs text-zinc-400">—</p>
+              <p className="px-1 text-xs text-stone-400">—</p>
             ) : (
               <ul className="space-y-1">
                 {dayBookings.map((b) => (
@@ -262,7 +262,7 @@ function WeekView({
                     key={b.id}
                     className={`rounded-md px-2 py-1 text-xs ${
                       b.status === 'CANCELLED'
-                        ? 'bg-zinc-100 text-zinc-400 line-through'
+                        ? 'bg-stone-100 text-stone-400 line-through'
                         : 'bg-brand-soft text-brand-dark'
                     }`}
                   >

@@ -30,7 +30,7 @@ export function ConfirmForm({
         <div>
           <label className="label" htmlFor="notes">
             Notes for the business{' '}
-            <span className="font-normal text-zinc-500">(optional)</span>
+            <span className="font-normal text-stone-500">(optional)</span>
           </label>
           <textarea
             id="notes"

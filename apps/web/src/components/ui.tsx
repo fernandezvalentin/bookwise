@@ -30,17 +30,19 @@ export function PageTitle({
   back?: { href: string; label: string };
 }) {
   return (
-    <div className="mb-6">
+    <div className="mb-8">
       {back && (
         <Link
           href={back.href}
-          className="text-sm text-zinc-500 hover:text-zinc-800"
+          className="text-sm text-stone-500 hover:text-stone-800"
         >
           ← {back.label}
         </Link>
       )}
-      <h1 className="mt-1 text-2xl font-semibold tracking-tight">{title}</h1>
-      {subtitle && <p className="mt-1 text-zinc-600">{subtitle}</p>}
+      <h1 className="mt-1 font-display text-3xl font-medium tracking-tight sm:text-4xl">
+        {title}
+      </h1>
+      {subtitle && <p className="mt-2 text-stone-600">{subtitle}</p>}
     </div>
   );
 }
@@ -53,14 +55,14 @@ export function Alert({
   children: ReactNode;
 }) {
   const styles = {
-    info: 'border-zinc-200 bg-white text-zinc-700',
+    info: 'border-stone-200 bg-white text-stone-700',
     success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
     error: 'border-red-200 bg-red-50 text-red-700',
   }[tone];
   return (
     <div
       role={tone === 'error' ? 'alert' : 'status'}
-      className={`rounded-lg border p-3 text-sm ${styles}`}
+      className={`rounded-xl border p-3.5 text-sm ${styles}`}
     >
       {children}
     </div>
@@ -73,7 +75,7 @@ export function StatusBadge({ status }: { status: 'CONFIRMED' | 'CANCELLED' }) {
       Confirmed
     </span>
   ) : (
-    <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+    <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
       Cancelled
     </span>
   );

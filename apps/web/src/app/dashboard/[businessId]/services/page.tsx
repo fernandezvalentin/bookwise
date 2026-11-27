@@ -27,29 +27,29 @@ export default async function ServicesPage({
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
       <section>
-        <h2 className="mb-2 text-sm font-medium text-zinc-700">Services</h2>
+        <h2 className="mb-2 text-sm font-medium text-stone-700">Services</h2>
         {sorted.length === 0 ? (
-          <p className="card p-5 text-sm text-zinc-500">
+          <p className="card p-5 text-sm text-stone-500">
             No services yet. Add the first one to open bookings.
           </p>
         ) : (
-          <ul className="card divide-y divide-zinc-100">
+          <ul className="card divide-y divide-stone-100">
             {sorted.map((s) => (
-              <li key={s.id} className={s.active ? '' : 'bg-zinc-50'}>
+              <li key={s.id} className={s.active ? '' : 'bg-stone-50'}>
                 <details className="group">
-                  <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-4 hover:bg-zinc-50">
+                  <summary className="flex cursor-pointer list-none items-center gap-4 px-5 py-4 hover:bg-stone-50">
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`truncate font-medium ${s.active ? '' : 'text-zinc-500'}`}
+                        className={`truncate font-medium ${s.active ? '' : 'text-stone-500'}`}
                       >
                         {s.name}
                         {!s.active && (
-                          <span className="ml-2 rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+                          <span className="ml-2 rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
                             Archived
                           </span>
                         )}
                       </p>
-                      <p className="text-sm text-zinc-500">
+                      <p className="text-sm text-stone-500">
                         {formatDuration(s.durationMin)}
                         {s.bufferMin > 0 &&
                           ` + ${s.bufferMin} min buffer`} ·{' '}
@@ -57,13 +57,13 @@ export default async function ServicesPage({
                       </p>
                     </div>
                     {isOwner && (
-                      <span className="text-sm text-zinc-500 group-open:hidden">
+                      <span className="text-sm text-stone-500 group-open:hidden">
                         Edit
                       </span>
                     )}
                   </summary>
                   {isOwner && (
-                    <div className="space-y-4 border-t border-zinc-100 px-5 py-4">
+                    <div className="space-y-4 border-t border-stone-100 px-5 py-4">
                       <ActionForm
                         action={updateService.bind(null, business.id, s.id)}
                         submitLabel="Save changes"
@@ -84,9 +84,9 @@ export default async function ServicesPage({
                         submitClassName={
                           s.active ? 'btn-danger' : 'btn-secondary'
                         }
-                        className="space-y-2 border-t border-zinc-100 pt-4"
+                        className="space-y-2 border-t border-stone-100 pt-4"
                       >
-                        <p className="text-sm text-zinc-500">
+                        <p className="text-sm text-stone-500">
                           {s.active
                             ? 'Archived services can’t be booked. Existing bookings are kept.'
                             : 'Restoring makes it bookable again.'}
@@ -103,7 +103,7 @@ export default async function ServicesPage({
 
       {isOwner && (
         <section>
-          <h2 className="mb-2 text-sm font-medium text-zinc-700">
+          <h2 className="mb-2 text-sm font-medium text-stone-700">
             Add a service
           </h2>
           <div className="card p-5">
@@ -153,7 +153,7 @@ function ServiceFields({ service }: { service?: Service }) {
       <div>
         <label className="label" htmlFor={`${prefix}-description`}>
           Description{' '}
-          <span className="font-normal text-zinc-400">(optional)</span>
+          <span className="font-normal text-stone-400">(optional)</span>
         </label>
         <textarea
           id={`${prefix}-description`}
@@ -216,7 +216,7 @@ function ServiceFields({ service }: { service?: Service }) {
           />
         </div>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-stone-500">
         The buffer is free time blocked after each appointment (cleaning,
         setup).
       </p>

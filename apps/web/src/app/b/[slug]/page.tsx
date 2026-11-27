@@ -27,7 +27,7 @@ export default async function BusinessPage({ params }: PageProps<'/b/[slug]'>) {
       />
 
       {business.services.length === 0 ? (
-        <p className="card p-6 text-zinc-600">
+        <p className="card p-6 text-stone-600">
           This business has no services to book yet.
         </p>
       ) : (
@@ -42,13 +42,15 @@ export default async function BusinessPage({ params }: PageProps<'/b/[slug]'>) {
                 className="card flex flex-wrap items-center gap-4 p-5"
               >
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-semibold">{service.name}</h2>
+                  <h2 className="font-display text-xl font-medium">
+                    {service.name}
+                  </h2>
                   {service.description && (
-                    <p className="mt-1 text-sm text-zinc-600">
+                    <p className="mt-1 text-sm text-stone-600">
                       {service.description}
                     </p>
                   )}
-                  <p className="mt-2 text-sm text-zinc-500">
+                  <p className="mt-2 text-sm text-stone-500">
                     {formatDuration(service.durationMin)} ·{' '}
                     {formatPrice(service.priceCents)}
                     {staff.length > 0 && (
@@ -64,7 +66,7 @@ export default async function BusinessPage({ params }: PageProps<'/b/[slug]'>) {
                     Book
                   </Link>
                 ) : (
-                  <span className="text-sm text-zinc-400">Not available</span>
+                  <span className="text-sm text-stone-400">Not available</span>
                 )}
               </li>
             );

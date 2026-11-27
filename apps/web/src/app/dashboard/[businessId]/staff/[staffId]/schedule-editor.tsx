@@ -38,7 +38,7 @@ export function ScheduleFields({
         name="schedule"
         value={JSON.stringify(flattenWeek(days))}
       />
-      <ul className="divide-y divide-zinc-100">
+      <ul className="divide-y divide-stone-100">
         {WEEKDAYS.map((name, day) => {
           const ranges = days[day];
           return (
@@ -49,7 +49,7 @@ export function ScheduleFields({
               <span className="w-24 pt-2 text-sm font-medium">{name}</span>
               <div className="flex-1 space-y-2">
                 {ranges.length === 0 && (
-                  <p className="pt-2 text-sm text-zinc-400">Closed</p>
+                  <p className="pt-2 text-sm text-stone-400">Closed</p>
                 )}
                 {ranges.map((range, k) => (
                   <div key={k} className="flex items-center gap-2">
@@ -69,7 +69,7 @@ export function ScheduleFields({
                         )
                       }
                     />
-                    <span className="text-zinc-400">–</span>
+                    <span className="text-stone-400">–</span>
                     <input
                       type="time"
                       step={300}
@@ -94,7 +94,7 @@ export function ScheduleFields({
                           ranges.filter((_, j) => j !== k),
                         )
                       }
-                      className="rounded-lg px-2 py-1 text-sm text-zinc-500 hover:bg-zinc-100"
+                      className="rounded-lg px-2 py-1 text-sm text-stone-500 hover:bg-stone-100"
                       aria-label={`Remove ${name} ${range.start}–${range.end}`}
                     >
                       ✕
@@ -125,7 +125,7 @@ export function ScheduleFields({
         <button
           type="button"
           onClick={copyMondayToWeekdays}
-          className="mt-2 text-sm text-zinc-500 underline-offset-2 hover:text-zinc-800 hover:underline"
+          className="mt-2 text-sm text-stone-500 underline-offset-2 hover:text-stone-800 hover:underline"
         >
           Copy Monday’s hours to Tuesday–Friday
         </button>

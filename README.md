@@ -6,7 +6,9 @@
 
 ## Screenshots
 
-Taken from the production stack running locally with the demo business ([run it yourself](#try-the-production-stack-locally)).
+With the demo business, Barbería Centro ([run it yourself](#try-the-production-stack-locally)).
+
+![Home page](docs/screenshots/home.png)
 
 | Customers: pick a service                                               | Customers: pick a free time                                     |
 | ----------------------------------------------------------------------- | --------------------------------------------------------------- |

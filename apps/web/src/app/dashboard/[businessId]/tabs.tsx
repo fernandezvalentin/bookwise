@@ -17,13 +17,13 @@ export function DashboardTabs({
   return (
     // The divider is an inset shadow, not a border: a `-mb-px` overlap on the
     // tabs would overflow the scroll container and show a vertical scrollbar.
-    <nav className="mb-6 flex gap-1 overflow-x-auto text-sm shadow-[inset_0_-1px_0] shadow-zinc-200">
+    <nav className="mb-6 flex gap-1 overflow-x-auto text-sm shadow-[inset_0_-1px_0] shadow-stone-200">
       {tabs.map((tab, i) => (
         <Link
           key={tab.href}
           href={tab.href}
           aria-current={isActive(tab.href, i) ? 'page' : undefined}
-          className="border-b-2 border-transparent px-3 py-2 font-medium whitespace-nowrap text-zinc-500 hover:text-zinc-800 aria-[current=page]:border-brand aria-[current=page]:text-zinc-900"
+          className="border-b-2 border-transparent px-3 py-2 font-medium whitespace-nowrap text-stone-500 hover:text-stone-800 aria-[current=page]:border-brand aria-[current=page]:text-brand"
         >
           {tab.label}
         </Link>

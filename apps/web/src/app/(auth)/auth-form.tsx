@@ -60,7 +60,7 @@ export function AuthForm({
           autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
         />
         {mode === 'register' && (
-          <p className="mt-1 text-xs text-zinc-500">At least 8 characters.</p>
+          <p className="mt-1 text-xs text-stone-500">At least 8 characters.</p>
         )}
       </div>
       {state.error && <Alert tone="error">{state.error}</Alert>}

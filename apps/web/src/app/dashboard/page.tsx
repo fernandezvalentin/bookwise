@@ -26,20 +26,20 @@ export default async function DashboardPage() {
       />
 
       {businesses.length > 0 && (
-        <ul className="card mb-8 divide-y divide-zinc-100">
+        <ul className="card mb-8 divide-y divide-stone-100">
           {businesses.map((b) => (
             <li key={b.id}>
               <Link
                 href={`/dashboard/${b.id}`}
-                className="flex items-center gap-4 px-5 py-4 hover:bg-zinc-50"
+                className="flex items-center gap-4 px-5 py-4 hover:bg-stone-50"
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{b.name}</p>
-                  <p className="truncate text-sm text-zinc-500">
+                  <p className="truncate text-sm text-stone-500">
                     /b/{b.slug} · {timezoneLabel(b.timezone)}
                   </p>
                 </div>
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600">
+                <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-medium text-stone-600">
                   {b.role === 'OWNER' ? 'Owner' : 'Staff'}
                 </span>
               </Link>
@@ -49,7 +49,7 @@ export default async function DashboardPage() {
       )}
 
       <section>
-        <h2 className="mb-2 text-sm font-medium text-zinc-700">
+        <h2 className="mb-2 text-sm font-medium text-stone-700">
           {businesses.length === 0 ? 'New business' : 'Add another business'}
         </h2>
         <div className="card p-6">

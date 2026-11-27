@@ -69,9 +69,9 @@ export default async function BookingPage({
           <Alert tone={message.tone}>{message.text}</Alert>
         </div>
       )}
-      <div className="card mb-6 divide-y divide-zinc-100 text-sm">
+      <div className="card mb-6 divide-y divide-stone-100 text-sm">
         <div className="flex items-center justify-between px-5 py-3">
-          <span className="text-zinc-500">Status</span>
+          <span className="text-stone-500">Status</span>
           <StatusBadge status={booking.status} />
         </div>
         <Row
@@ -120,7 +120,7 @@ function isInTheFuture(isoInstant: string) {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-4 px-5 py-3">
-      <span className="w-24 shrink-0 text-zinc-500">{label}</span>
+      <span className="w-24 shrink-0 text-stone-500">{label}</span>
       <span className="font-medium">{value}</span>
     </div>
   );

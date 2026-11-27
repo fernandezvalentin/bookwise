@@ -28,13 +28,13 @@ export default async function StaffPage({
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
       <section>
-        <h2 className="mb-2 text-sm font-medium text-zinc-700">Staff</h2>
+        <h2 className="mb-2 text-sm font-medium text-stone-700">Staff</h2>
         {sorted.length === 0 ? (
-          <p className="card p-5 text-sm text-zinc-500">
+          <p className="card p-5 text-sm text-stone-500">
             No staff yet. Add the people who take appointments.
           </p>
         ) : (
-          <ul className="card divide-y divide-zinc-100">
+          <ul className="card divide-y divide-stone-100">
             {sorted.map((s) => {
               const names = s.serviceIds
                 .map((id) => serviceName.get(id))
@@ -43,26 +43,26 @@ export default async function StaffPage({
                 <li key={s.id}>
                   <Link
                     href={`/dashboard/${business.id}/staff/${s.id}`}
-                    className="flex items-center gap-4 px-5 py-4 hover:bg-zinc-50"
+                    className="flex items-center gap-4 px-5 py-4 hover:bg-stone-50"
                   >
                     <div className="min-w-0 flex-1">
                       <p
-                        className={`truncate font-medium ${s.active ? '' : 'text-zinc-500'}`}
+                        className={`truncate font-medium ${s.active ? '' : 'text-stone-500'}`}
                       >
                         {s.name}
                         {!s.active && (
-                          <span className="ml-2 rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+                          <span className="ml-2 rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
                             Inactive
                           </span>
                         )}
                       </p>
-                      <p className="truncate text-sm text-zinc-500">
+                      <p className="truncate text-sm text-stone-500">
                         {names.length > 0
                           ? names.join(', ')
                           : 'No services assigned'}
                       </p>
                     </div>
-                    <span className="text-sm text-zinc-500">
+                    <span className="text-sm text-stone-500">
                       Hours & time off →
                     </span>
                   </Link>
@@ -75,7 +75,7 @@ export default async function StaffPage({
 
       {isOwner && (
         <section>
-          <h2 className="mb-2 text-sm font-medium text-zinc-700">
+          <h2 className="mb-2 text-sm font-medium text-stone-700">
             Add a staff member
           </h2>
           <div className="card p-5">

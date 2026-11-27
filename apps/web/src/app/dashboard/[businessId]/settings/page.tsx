@@ -15,7 +15,7 @@ export default async function SettingsPage({
 
   return (
     <section className="max-w-xl">
-      <h2 className="mb-2 text-sm font-medium text-zinc-700">Business</h2>
+      <h2 className="mb-2 text-sm font-medium text-stone-700">Business</h2>
       <div className="card p-6">
         {isOwner ? (
           <ActionForm
@@ -23,7 +23,7 @@ export default async function SettingsPage({
             submitLabel="Save settings"
           >
             <BusinessFields business={business} />
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-stone-500">
               Changing the address breaks links shared with the old one.
               Changing the time zone keeps existing bookings at the same
               instant, but working hours are read in the new zone.

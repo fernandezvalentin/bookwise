@@ -53,13 +53,13 @@ export default async function StaffMemberPage({
       <div className="flex flex-wrap items-center gap-3">
         <Link
           href={`/dashboard/${business.id}/staff`}
-          className="text-sm text-zinc-500 hover:text-zinc-800"
+          className="text-sm text-stone-500 hover:text-stone-800"
         >
           ← Staff
         </Link>
-        <h2 className="text-xl font-semibold">{member.name}</h2>
+        <h2 className="font-display text-2xl font-medium">{member.name}</h2>
         {!member.active && (
-          <span className="rounded-full bg-zinc-200 px-2 py-0.5 text-xs font-medium text-zinc-600">
+          <span className="rounded-full bg-stone-200 px-2 py-0.5 text-xs font-medium text-stone-600">
             Inactive
           </span>
         )}
@@ -68,9 +68,9 @@ export default async function StaffMemberPage({
       <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">
         {/* Weekly hours */}
         <section>
-          <h3 className="mb-2 text-sm font-medium text-zinc-700">
+          <h3 className="mb-2 text-sm font-medium text-stone-700">
             Weekly hours{' '}
-            <span className="font-normal text-zinc-500">
+            <span className="font-normal text-stone-500">
               ({timezoneLabel(tz)})
             </span>
           </h3>
@@ -92,7 +92,7 @@ export default async function StaffMemberPage({
           {/* Profile */}
           {isOwner && (
             <section>
-              <h3 className="mb-2 text-sm font-medium text-zinc-700">
+              <h3 className="mb-2 text-sm font-medium text-stone-700">
                 Profile
               </h3>
               <div className="card space-y-4 p-5">
@@ -130,9 +130,9 @@ export default async function StaffMemberPage({
                   submitClassName={
                     member.active ? 'btn-danger' : 'btn-secondary'
                   }
-                  className="space-y-2 border-t border-zinc-100 pt-4"
+                  className="space-y-2 border-t border-stone-100 pt-4"
                 >
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-stone-500">
                     {member.active
                       ? 'Inactive staff can’t be booked. Their past bookings are kept.'
                       : 'Reactivating makes them bookable again.'}
@@ -144,14 +144,16 @@ export default async function StaffMemberPage({
 
           {/* Time off */}
           <section>
-            <h3 className="mb-2 text-sm font-medium text-zinc-700">Time off</h3>
-            <div className="card divide-y divide-zinc-100">
+            <h3 className="mb-2 text-sm font-medium text-stone-700">
+              Time off
+            </h3>
+            <div className="card divide-y divide-stone-100">
               {timeOff.length === 0 ? (
-                <p className="p-5 text-sm text-zinc-500">
+                <p className="p-5 text-sm text-stone-500">
                   No upcoming time off.
                 </p>
               ) : (
-                <ul className="divide-y divide-zinc-100">
+                <ul className="divide-y divide-stone-100">
                   {timeOff.map((t) => (
                     <li
                       key={t.id}
@@ -163,7 +165,7 @@ export default async function StaffMemberPage({
                           {formatInstant(t.endsAt, tz)}
                         </p>
                         {t.reason && (
-                          <p className="text-zinc-500">{t.reason}</p>
+                          <p className="text-stone-500">{t.reason}</p>
                         )}
                       </div>
                       {isOwner && (
@@ -176,7 +178,7 @@ export default async function StaffMemberPage({
                           )}
                           submitLabel="Remove"
                           pendingLabel="…"
-                          submitClassName="rounded-lg px-2 py-1 text-zinc-500 hover:bg-zinc-100"
+                          submitClassName="rounded-lg px-2 py-1 text-stone-500 hover:bg-stone-100"
                           className="flex flex-col items-end gap-1"
                         >
                           {null}
@@ -224,7 +226,7 @@ export default async function StaffMemberPage({
                     <div>
                       <label className="label" htmlFor="off-reason">
                         Reason{' '}
-                        <span className="font-normal text-zinc-400">
+                        <span className="font-normal text-stone-400">
                           (optional)
                         </span>
                       </label>
@@ -236,7 +238,7 @@ export default async function StaffMemberPage({
                         placeholder="Holidays"
                       />
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-stone-500">
                       Times are in {timezoneLabel(tz)}. Existing bookings in
                       that period are not cancelled automatically.
                     </p>
@@ -254,11 +256,13 @@ export default async function StaffMemberPage({
 function ReadOnlyWeek({ hours }: { hours: WorkingInterval[] }) {
   const days = groupByWeekday(hours);
   return (
-    <dl className="divide-y divide-zinc-100 text-sm">
+    <dl className="divide-y divide-stone-100 text-sm">
       {WEEKDAYS.map((name, i) => (
         <div key={name} className="flex gap-4 py-2">
           <dt className="w-24 font-medium">{name}</dt>
-          <dd className="text-zinc-600 tabular-nums">{describeDay(days[i])}</dd>
+          <dd className="text-stone-600 tabular-nums">
+            {describeDay(days[i])}
+          </dd>
         </div>
       ))}
     </dl>

@@ -50,7 +50,7 @@ export function BusinessFields({
           Booking page address
         </label>
         <div className="flex items-center gap-1">
-          <span className="text-sm text-zinc-500">/b/</span>
+          <span className="text-sm text-stone-500">/b/</span>
           <input
             id="slug"
             name="slug"
@@ -81,7 +81,7 @@ export function BusinessFields({
             </option>
           ))}
         </select>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-1 text-xs text-stone-500">
           Working hours and the agenda use this time zone.
         </p>
       </div>

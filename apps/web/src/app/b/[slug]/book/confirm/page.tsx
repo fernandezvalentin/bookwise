@@ -58,7 +58,7 @@ export default async function ConfirmPage({
         }
         back={{ href: backHref, label: 'Back to times' }}
       />
-      <div className="card mb-6 divide-y divide-zinc-100">
+      <div className="card mb-6 divide-y divide-stone-100">
         <Row
           label="Service"
           value={`${service.name} · ${formatDuration(service.durationMin)}`}
@@ -93,11 +93,11 @@ function Row({
 }) {
   return (
     <div className="flex gap-4 px-5 py-3 text-sm">
-      <span className="w-24 shrink-0 text-zinc-500">{label}</span>
+      <span className="w-24 shrink-0 text-stone-500">{label}</span>
       <span className="font-medium">
         {value}
         {hint && (
-          <span className="block text-xs font-normal text-zinc-500">
+          <span className="block text-xs font-normal text-stone-500">
             {hint}
           </span>
         )}

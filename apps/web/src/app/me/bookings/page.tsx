@@ -42,24 +42,24 @@ function BookingList({
 }) {
   return (
     <section className="mb-8">
-      <h2 className="mb-2 text-sm font-medium text-zinc-700">{title}</h2>
+      <h2 className="mb-2 text-sm font-medium text-stone-700">{title}</h2>
       {bookings.length === 0 ? (
-        <p className="card p-5 text-sm text-zinc-500">{empty}</p>
+        <p className="card p-5 text-sm text-stone-500">{empty}</p>
       ) : (
-        <ul className="card divide-y divide-zinc-100">
+        <ul className="card divide-y divide-stone-100">
           {bookings.map((b) => (
             <li key={b.id}>
               <Link
                 href={`/bookings/${b.id}`}
-                className="flex items-center gap-4 px-5 py-4 hover:bg-zinc-50"
+                className="flex items-center gap-4 px-5 py-4 hover:bg-stone-50"
               >
                 <div className="w-24 shrink-0 text-sm">
                   <p className="font-medium">{formatDay(b.localDate)}</p>
-                  <p className="text-zinc-500 tabular-nums">{b.localTime}</p>
+                  <p className="text-stone-500 tabular-nums">{b.localTime}</p>
                 </div>
                 <div className="min-w-0 flex-1 text-sm">
                   <p className="truncate font-medium">{b.service.name}</p>
-                  <p className="truncate text-zinc-500">
+                  <p className="truncate text-stone-500">
                     {b.business.name} · {b.staff.name}
                   </p>
                 </div>
