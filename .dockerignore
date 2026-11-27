@@ -11,4 +11,5 @@ apps/api/src/generated
 **/.env.*
 !**/.env.example
 deploy
+docs
 *.log

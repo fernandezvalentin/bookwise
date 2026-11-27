@@ -4,6 +4,16 @@
 
 > 🚧 Work in progress. The project is built in stages; see the [roadmap](#roadmap).
 
+## Screenshots
+
+Taken from the production stack running locally with the demo business ([run it yourself](#try-the-production-stack-locally)).
+
+| Customers: pick a service                                               | Customers: pick a free time                                     |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------- |
+| ![Services of the demo business](docs/screenshots/booking-services.png) | ![Free times for a service](docs/screenshots/booking-times.png) |
+| **Business: week agenda**                                               | **Business: day agenda**                                        |
+| ![Week agenda](docs/screenshots/dashboard-week.png)                     | ![Day agenda with bookings](docs/screenshots/dashboard-day.png) |
+
 ## Tech stack
 
 | Layer    | Technology                                                |
@@ -268,6 +278,23 @@ docker compose exec api node dist/demo/reset-demo.js   # reset the demo now
 docker compose exec postgres pg_dump -U bookwise bookwise > backup.sql
 ```
 
+### Try the production stack locally
+
+The same stack runs on your machine, with the demo business, without a server or a domain: Caddy serves `localhost` with a certificate from its own local authority (the browser shows a warning the first time), and emails go to the development Mailpit.
+
+1. Start Mailpit: `npm run db:up` from the repository root.
+2. In `deploy/`, create `.env` from `.env.example` with these values, plus random values for `POSTGRES_PASSWORD`, `JWT_ACCESS_SECRET` and `DEMO_OWNER_PASSWORD`:
+   ```
+   DOMAIN=localhost
+   API_DOMAIN=api.localhost
+   SMTP_URL=smtp://host.docker.internal:1025
+   MAIL_FROM=Bookwise <no-reply@bookwise.local>
+   DEMO_OWNER_EMAIL=demo@bookwise.test
+   ```
+3. `docker compose up -d --build`, then open https://localhost and use the home page buttons to book or to open the demo dashboard. Stop it with `docker compose down` (add `-v` to delete its data).
+
+It uses ports 80 and 443 and its own project name (`bookwise-prod`), so it doesn't touch the development containers.
+
 ## Roadmap
 
 - [x] **Stage 0:** monorepo, Docker services, NestJS API with health check, Prisma, CI
@@ -278,5 +305,5 @@ docker compose exec postgres pg_dump -U bookwise bookwise > backup.sql
 - [x] **Stage 5:** email reminders with BullMQ
 - [x] **Stage 6:** web: booking flow
 - [x] **Stage 7:** web: business dashboard
-- [ ] **Stage 8:** deployment and public demo
+- [x] **Stage 8:** production deployment (Docker Compose + Caddy) and a resettable demo business
 - [ ] **Stage 9:** AI booking assistant
