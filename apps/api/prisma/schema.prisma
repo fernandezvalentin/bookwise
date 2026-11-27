@@ -2,8 +2,11 @@
 // Models are added stage by stage; run `npm run prisma:migrate` after each change.
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  // Explicit, not inferred from tsconfig.json: the Docker build generates the
+  // client before copying the sources, and Node needs .js in compiled imports.
+  importFileExtension = "js"
 }
 
 datasource db {

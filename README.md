@@ -31,12 +31,14 @@ bookwise/
 │   │   │   ├── availability/ Availability engine (pure function) and public endpoint
 │   │   │   ├── bookings/    Bookings: create, cancel, reschedule, agenda
 │   │   │   ├── notifications/ Email queue: worker, reminders, sweep
+│   │   │   ├── demo/        Public demo business: data, nightly reset, CLI
 │   │   │   ├── mail/        SMTP email sending (nodemailer)
 │   │   │   ├── common/      Shared helpers (time, slugs, Prisma errors)
 │   │   │   ├── config/      Environment validation (Zod)
 │   │   │   ├── health/      GET /health (liveness + database check)
 │   │   │   └── prisma/      Prisma client as a Nest provider
-│   │   └── test/            e2e tests
+│   │   ├── test/            e2e tests
+│   │   └── Dockerfile       Production image (build and runtime stages)
 │   └── web/                 Next.js app (talks to the API from the server only)
 │       └── src/
 │           ├── app/
@@ -47,6 +49,7 @@ bookwise/
 │           │   └── (auth)/      Sign-in and sign-up
 │           ├── components/      Shared UI
 │           └── lib/             API client, cookie sessions, formatting, agenda helpers
+├── deploy/                  Production stack: Docker Compose, Caddy, env example
 ├── docker/                  Docker init scripts
 ├── docker-compose.yml       Postgres, Redis and Mailpit for local development
 └── .github/workflows/       CI
@@ -100,17 +103,18 @@ npm run prisma:migrate -w apps/api -- --name describe_the_change
 
 Run from the repository root:
 
-| Command                     | What it does                                   |
-| --------------------------- | ---------------------------------------------- |
-| `npm run dev`               | API in watch mode                              |
-| `npm run dev:web`           | Web app in development mode                    |
-| `npm run build`             | Production build                               |
-| `npm run lint`              | oxlint (type-aware)                            |
-| `npm run typecheck`         | TypeScript, no emit                            |
-| `npm test`                  | Unit tests                                     |
-| `npm run test:e2e`          | e2e tests against the `bookwise_test` database |
-| `npm run format`            | Prettier                                       |
-| `npm run db:up` / `db:down` | Start / stop the Docker services               |
+| Command                          | What it does                                       |
+| -------------------------------- | -------------------------------------------------- |
+| `npm run dev`                    | API in watch mode                                  |
+| `npm run dev:web`                | Web app in development mode                        |
+| `npm run build`                  | Production build                                   |
+| `npm run lint`                   | oxlint (type-aware)                                |
+| `npm run typecheck`              | TypeScript, no emit                                |
+| `npm test`                       | Unit tests                                         |
+| `npm run test:e2e`               | e2e tests against the `bookwise_test` database     |
+| `npm run format`                 | Prettier                                           |
+| `npm run db:up` / `db:down`      | Start / stop the Docker services                   |
+| `npm run demo:reset -w apps/api` | Recreate the demo business (after `npm run build`) |
 
 ## API
 
@@ -223,6 +227,46 @@ Locally, every email lands in Mailpit at http://localhost:8025. The e2e tests us
 ### Dates
 
 Every timestamp is stored as `timestamptz` (UTC); local times only exist at the edges (working hours in, labels out).
+
+### Public demo
+
+The demo business, **Barbería Centro**, is a real tenant: anyone can book at it, and anyone can open its dashboard as its owner from the home page.
+
+- **Reset every night:** visitors can rename it, change its hours or cancel bookings, so a BullMQ job scheduler recreates it at 04:00 (Buenos Aires) in one transaction. The business keeps a fixed id, so dashboard links survive. On the first deploy it is created at startup.
+- **Looks lived-in:** three staff members with different hours and about two weeks of past and upcoming bookings, around 40% of the possible start times, so there are still free slots to book. The data is a pure function of the date (seeded hashes), tested for no overlaps and only inside working hours.
+- **No emails to strangers:** seeded customers use the reserved `.invalid` domain (RFC 2606), and the mail service never sends to it. Visitors who book with their own address get real emails.
+
+### Production behind a reverse proxy
+
+- **Only Caddy is public:** it terminates HTTPS (automatic certificates) and forwards to the web app and, for the interactive docs, to the API. Postgres and Redis are only on the internal Docker network.
+- **Rate limits per visitor, not per server:** the web app calls the API from its own server, so every request reaches the API from the same address, and the sign-in limit (10 per minute per IP) would be shared by everyone. The web app passes on the visitor's `X-Forwarded-For`, and the API trusts that header only from private network addresses (`TRUST_PROXY`). Caddy overwrites whatever value the visitor sends, so it can't be spoofed: checked against the running stack (a forged header still gets `429` after 10 attempts, while two different visitors are limited separately).
+- **Small images:** the API runtime image has production dependencies only; the web image uses Next.js `standalone` output, which traces the files the server needs. CI builds both images on every push.
+- **Migrations before the API starts:** a one-shot `migrate` service runs `prisma migrate deploy`, and the API waits for it to succeed.
+
+## Deployment
+
+The production stack runs on any server with Docker (for example a small VPS with 2 GB of RAM or more; building the images needs it). Everything is in [`deploy/`](deploy):
+
+1. Point two DNS records (for example `bookwise.example.com` and `api.bookwise.example.com`) to the server.
+2. On the server, clone the repository and create the settings file:
+   ```bash
+   cd deploy
+   cp .env.example .env   # fill in domains, secrets, SMTP and the demo owner
+   ```
+3. Start everything:
+   ```bash
+   docker compose up -d --build
+   ```
+   Caddy gets the HTTPS certificates, `migrate` applies the migrations, and the API creates the demo business.
+4. To update: `git pull && docker compose up -d --build`.
+
+Emails go through any SMTP provider (Resend, Postmark...), with the sender's domain verified there. Other useful commands, from `deploy/`:
+
+```bash
+docker compose logs -f api                      # API and email worker logs
+docker compose exec api node dist/demo/reset-demo.js   # reset the demo now
+docker compose exec postgres pg_dump -U bookwise bookwise > backup.sql
+```
 
 ## Roadmap
 

@@ -1,0 +1,15 @@
+# Caddy gets and renews HTTPS certificates for both domains automatically.
+# Their DNS A/AAAA records must point to this server before the first start.
+#
+# reverse_proxy sets X-Forwarded-For to the visitor's address and ignores any
+# value the visitor sent, so the apps behind it can trust that header.
+
+{$DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:3000
+}
+
+{$API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:3001
+}

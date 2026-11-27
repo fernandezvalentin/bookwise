@@ -1,5 +1,5 @@
 import 'server-only';
-import { cookies } from 'next/headers';
+import { cookies, headers as requestHeaders } from 'next/headers';
 import { ACCESS_COOKIE } from './session-cookies';
 
 const API_URL = process.env.API_URL ?? 'http://localhost:3001';
@@ -37,6 +37,11 @@ export async function api<T>(
 
   const headers: Record<string, string> = { Accept: 'application/json' };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
+  // The API rate-limits sign-in per IP. Every call comes from this server, so
+  // pass on the visitor's address (set by the reverse proxy); the API trusts
+  // it only from private network addresses (TRUST_PROXY).
+  const forwardedFor = (await requestHeaders()).get('x-forwarded-for');
+  if (forwardedFor) headers['X-Forwarded-For'] = forwardedFor;
   if (options.auth) {
     const token = (await cookies()).get(ACCESS_COOKIE)?.value;
     if (token) headers.Authorization = `Bearer ${token}`;

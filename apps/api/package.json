@@ -19,7 +19,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev && prisma generate",
     "postinstall": "prisma generate",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "demo:reset": "node --env-file-if-exists=.env dist/demo/reset-demo.js"
   },
   "dependencies": {
     "@nestjs/bullmq": "^12.0.2",

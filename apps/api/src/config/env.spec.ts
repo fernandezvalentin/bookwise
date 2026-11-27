@@ -29,4 +29,17 @@ describe('validateEnv', () => {
       /DATABASE_URL/,
     );
   });
+
+  it('requires both demo owner variables, or neither', () => {
+    const demo = {
+      DEMO_OWNER_EMAIL: 'demo@bookwise.dev',
+      DEMO_OWNER_PASSWORD: 'a-long-demo-password',
+    };
+    expect(validateEnv({ ...validEnv, ...demo }).DEMO_OWNER_EMAIL).toBe(
+      'demo@bookwise.dev',
+    );
+    expect(() =>
+      validateEnv({ ...validEnv, DEMO_OWNER_EMAIL: demo.DEMO_OWNER_EMAIL }),
+    ).toThrow(/DEMO_OWNER_PASSWORD/);
+  });
 });

@@ -29,6 +29,10 @@ export class MailService implements OnModuleDestroy {
   }
 
   async send(message: MailMessage): Promise<void> {
+    if (isUndeliverable(message.to)) {
+      this.logger.log(`Skipped "${message.subject}" to ${message.to}`);
+      return;
+    }
     const info = await this.transporter.sendMail({
       from: this.from,
       ...message,
@@ -41,4 +45,13 @@ export class MailService implements OnModuleDestroy {
   onModuleDestroy() {
     this.transporter.close();
   }
+}
+
+/**
+ * Addresses under the reserved `.invalid` TLD (RFC 2606) can never receive
+ * email, so they are never sent to: the demo's seeded customers use it, and a
+ * real SMTP provider would count every attempt as a bounce.
+ */
+export function isUndeliverable(address: string): boolean {
+  return /\.invalid$/i.test(address.trim());
 }

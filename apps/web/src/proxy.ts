@@ -26,7 +26,10 @@ export async function proxy(request: NextRequest) {
     refresh && (!access || secondsUntilExpiry(access) < REFRESH_MARGIN_SECONDS);
   if (!needsRefresh) return NextResponse.next();
 
-  const pair = await refreshOnce(refresh);
+  const pair = await refreshOnce(
+    refresh,
+    request.headers.get('x-forwarded-for'),
+  );
   if (pair) {
     const cookies = sessionCookies(pair);
     for (const c of cookies) request.cookies.set(c.name, c.value);
@@ -55,10 +58,13 @@ export async function proxy(request: NextRequest) {
 const inFlight = new Map<string, Promise<TokenPair | null>>();
 const RESULT_TTL_MS = 10_000;
 
-function refreshOnce(refreshToken: string): Promise<TokenPair | null> {
+function refreshOnce(
+  refreshToken: string,
+  forwardedFor: string | null,
+): Promise<TokenPair | null> {
   let pending = inFlight.get(refreshToken);
   if (!pending) {
-    pending = callRefresh(refreshToken);
+    pending = callRefresh(refreshToken, forwardedFor);
     inFlight.set(refreshToken, pending);
     void pending.finally(() =>
       setTimeout(() => inFlight.delete(refreshToken), RESULT_TTL_MS),
@@ -67,11 +73,18 @@ function refreshOnce(refreshToken: string): Promise<TokenPair | null> {
   return pending;
 }
 
-async function callRefresh(refreshToken: string): Promise<TokenPair | null> {
+/** `forwardedFor`: the visitor's address, for the API's per-IP rate limit (see lib/api.ts). */
+async function callRefresh(
+  refreshToken: string,
+  forwardedFor: string | null,
+): Promise<TokenPair | null> {
   try {
     const res = await fetch(new URL('/auth/refresh', API_URL), {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        ...(forwardedFor ? { 'X-Forwarded-For': forwardedFor } : {}),
+      },
       body: JSON.stringify({ refreshToken }),
       cache: 'no-store',
     });

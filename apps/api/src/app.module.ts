@@ -7,6 +7,7 @@ import { BookingsModule } from './bookings/bookings.module.js';
 import { BusinessesModule } from './businesses/businesses.module.js';
 import { redisConnectionFromUrl } from './common/redis.js';
 import { validateEnv, type Env } from './config/env.js';
+import { DemoModule } from './demo/demo.module.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { ServicesModule } from './services/services.module.js';
@@ -33,6 +34,7 @@ import { UsersModule } from './users/users.module.js';
     StaffModule,
     AvailabilityModule,
     BookingsModule,
+    DemoModule,
   ],
 })
 export class AppModule {}
